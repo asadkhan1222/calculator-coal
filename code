@@ -1,0 +1,35 @@
+include emu8086.incorg 100h  
+;;A data definition statement sets aside storage in memory for a variable, with an optional name.data
+jmp start       ; jump over data declaration          val dw ?result dw ?
+
+msg:    db      "Press '1'for Addition",0dh,0ah,"Press '2' for Multiplication",0dh,0ah,"Press '3'for Subtract",0dh,0ah,"Press '4'for Division", 0Dh,0Ah,"Press '5'for Cube",0dh,0ah,"Press '6'for Square",0dh,0ah,'$'
+
+msg2:    db      0dh,0ah,"Enter First No : $"   
+msg3:    db      0dh,0ah,"Enter Second No : $"  
+msg4:    db      0dh,0ah,"Choice Error $"  
+msg5:    db      0dh,0ah,"Result : $"  
+msg6:    db      0dh,0ah ,'thank you for using the calculator! press any key... ', 0Dh,0Ah, '$'          .code 
+
+start:  mov ah,9    
+        mov dx, offset msg                  int 21h        mov ah,0                               int 16h         ; ;The CMP instruction compares two operands.         cmp al,31h         ;; "je" (jump-if-equal), does a goto somewhere if the two values satisfy the right condition.         je Addition        cmp al,32h        je Multiply         ; ;The CMP instruction compares two operands.        cmp al,33h        je Subtract         ; ;The CMP instruction compares two operands.        cmp al,34h        je Divide          cmp al,35h        je Cube        cmp al,36h        je Square                ; ;The CMP instruction compares two operands.                     ; "je" (jump-if-equal), does a goto somewhere if the two values satisfy the right condition.                                             mov ah,09h           ;;Offset is an assembler directive in x86 assembly language.         mov dx, offset msg4        int 21h        mov ah,0        int 16h        jmp start        Addition:   mov ah,09h              mov dx, offset msg2               ;;int21h means that you are using function 01h of the Interrupt type 21.            int 21h            mov cx,0             call InputNo              push dx            mov ah,9            mov dx, offset msg3            int 21h             mov cx,0            call InputNo            pop bx            add dx,bx            push dx             mov ah,9              ;Offset is basically the distance from the segment point.            mov dx, offset msg5            int 21h            mov cx,10000            pop dx            call View             jmp exit             InputNo:    mov ah,0            int 16h                  mov dx,0              mov bx,1             cmp al,0dh                           je FormNo                   sub ax,30h                   call ViewNo                  mov ah,0                     push ax              ;inc increases the number by 1                    inc cx                       jmp InputNo                  
+FormNo:     pop ax               ;The push instruction places its operand onto the top of the hardware supported stack in memory.             push dx                  mul bx            pop dx            add dx,ax            mov ax,bx                   mov bx,10            push dx            mul bx              ;The pop instruction removes the 4-byte data element from the top of the hardware-supported stack into the specified operand (i.e. register or memory location)            pop dx            mov bx,ax            dec cx            cmp cx,0               ;It jumps to the specified location if the Zero Flag (ZF) is cleared (0).            jne FormNo            ret   
+
+              View:  mov ax,dx       mov dx,0       div cx        call ViewNo       mov bx,dx        mov dx,0       mov ax,cx        mov cx,10       div cx       mov dx,bx        mov cx,ax       cmp ax,0          ;It jumps to the specified location if the Zero Flag (ZF) is cleared (0).        jne View       ret
+
+ViewNo:    push ax            push dx           mov dx,ax            add dl,30h            mov ah,2           int 21h           pop dx             pop ax           ret                 ;;Offset is an assembler directive in x86 assembly language.exit:   mov dx,offset msg6        mov ah, 09h        int 21h  
+
+        mov ah, 0        int 16h
+        ret                                   Multiply:   mov ah,09h            mov dx, offset msg2            int 21h            mov cx,0            call InputNo            push dx            mov ah,9            mov dx, offset msg3            int 21h             mov cx,0            call InputNo            pop bx            mov ax,dx            mul bx             mov dx,ax            push dx             mov ah,9            mov dx, offset msg5            int 21h            mov cx,10000            pop dx            call View             jmp exit 
+
+Subtract:   mov ah,09h            mov dx, offset msg2            int 21h            mov cx,0            call InputNo            push dx            mov ah,9            mov dx, offset msg3            int 21h             mov cx,0            call InputNo            pop bx            sub bx,dx            mov dx,bx            push dx             mov ah,9            mov dx, offset msg5            int 21h            mov cx,10000            pop dx            call View             jmp exit                 Divide:     mov ah,09h            mov dx, offset msg2            int 21h            mov cx,0            call InputNo            push dx            mov ah,9            mov dx, offset msg3            int 21h             mov cx,0            call InputNo            pop bx            mov ax,bx            mov cx,dx            mov dx,0            mov bx,0            div cx            mov bx,dx            mov dx,ax            push bx             push dx             mov ah,9            mov dx, offset msg5            int 21h            mov cx,10000            pop dx            call View            pop bx            cmp bx,0            je exit             jmp exit             
+                                        cube:printnprint 'Enter First Number: 'call scan_nummov ax, cx  mov bx,cxprintn mul bx mul bx
+print 'The cube = 'call print_num                                                                      
+Square:printnprint 'Enter First Number: 'call scan_nummov ax, cxprintn mul ax 
+
+print 'The Square = 'call print_num     
+
+
+
+
+printn      
+DEFINE_SCAN_NUMDEFINE_PRINT_NUMDEFINE_PRINT_NUM_UNSEND
